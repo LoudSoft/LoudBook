@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,12 +23,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class LoudBook extends Activity {
-
-	private static final String TAG = "LoudBook";
+	
+	private LogPrinter LOG; 
 	boolean mExternalStorageAvailable = false;
 	boolean mExternalStorageWriteable = false;
 	private Context context;
-	private int duration = Toast.LENGTH_SHORT;
+	private int duration = Toast.LENGTH_LONG;
 	private String mFileBaseName = "";
 	private String mDirectoryName = "";
 	private EditText mSearchFolderName;
@@ -42,6 +41,7 @@ public class LoudBook extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        LOG = new LogPrinter(true, "LoudBook");
     	context = getApplicationContext();
 
     	mSearchFolderName = (EditText) findViewById(R.id.search_folder_name);
@@ -67,7 +67,7 @@ public class LoudBook extends Activity {
     	if(mExternalStorageAvailable) {
     		File sdDir = Environment.getExternalStorageDirectory();
     		mSearchFolderName.setText(sdDir.getPath() + "/loudsoft/loudbook/");
-            Log.i(TAG, "onCreate(): mSearchFolderName = " + mSearchFolderName);
+            LOG.I("onCreate()","mSearchFolderName = " + mSearchFolderName.getText().toString());
     	}
     }
     
@@ -77,33 +77,35 @@ public class LoudBook extends Activity {
     OnClickListener mOpenFileListener = new OnClickListener() {
         public void onClick(View v) {
             //finish();
-        	Log.d(TAG, "onClick()");
+        	LOG.D("onClick()", "start");
 
-        	//mFileBaseName = mBookConfigFileName.getText().toString();
-			mFileBaseName = "my_icon.png";
+        	mFileBaseName = mBookConfigFileName.getText().toString();
+			//mFileBaseName = "my_icon.png";
 			mDirectoryName = mSearchFolderName.getText().toString();
 			
         	if(!mExternalStorageAvailable) {
-        		Log.e(TAG, "External storage is not available");        		
+        		LOG.E("onClick()", "External storage is not available");        		
         		return;
         	}
         	File directory = new File(mDirectoryName);
         	if(!directory.exists() && !directory.mkdirs()) {
-        		Log.e(TAG, "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
+        		LOG.E("onClick()", "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
         		return;
             }
         	mFile = new File(mDirectoryName, mFileBaseName);
         	if(mFile == null){
-        		Log.e(TAG, "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
+        		LOG.E("onClick()", "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
         		return;
         	}
-        	createExternalStoragePrivatePicture(mFile);
+        	//createExternalStoragePrivatePicture(mFile);
         		
         	if(mFile.exists()) {
         		Toast.makeText(context, mFile + " exist!", duration).show();
+/*
         		if(deleteFile(mFile)) {
         			Log.i(TAG, "Deleted " + mFile);        		    
         		}
+*/
         	} else {
         		Toast.makeText(context, mFile + " does not exist!", duration).show();
         	}
@@ -111,7 +113,7 @@ public class LoudBook extends Activity {
     };
     
     void createExternalStoragePrivatePicture(File file) {
-        Log.i(TAG, "createExternalStoragePrivatePicture(): " + file);
+    	LOG.E("createExternalStoragePrivatePicture()", "file: " + file);
         // Create a path where we will place our picture in our own private
         // pictures directory.  Note that we don't really need to place a
         // picture in DIRECTORY_PICTURES, since the media scanner will see
@@ -140,19 +142,19 @@ public class LoudBook extends Activity {
                     new MediaScannerConnection.OnScanCompletedListener() {
 				@Override
                 public void onScanCompleted(String path, Uri uri) {
-                    Log.i(TAG, "Scanned " + path + ":");
-                    Log.i(TAG, "-> uri=" + uri);
+					LOG.I("createExternalStoragePrivatePicture()", "Scanned " + path + ":");
+					LOG.I("createExternalStoragePrivatePicture()", "-> uri=" + uri);
                 }
             });
         } catch (IOException e) {
             // Unable to create file, likely because external storage is
             // not currently mounted.
-            Log.e(TAG, "Error writing " + file, e);
+        	LOG.E("createExternalStoragePrivatePicture()", "Error writing " + file, e);
         }
     }
 
     boolean deleteFile(File file) {
-        Log.i(TAG, "deleteFile()" + file);
+    	LOG.I("deleteFile()", "file: " + file);
         boolean res = false;
         // Create a path where we will place our picture in the user's
         // public pictures directory and delete the file.  If external
@@ -160,7 +162,7 @@ public class LoudBook extends Activity {
         try {
         	res = file.delete();
         } catch (SecurityException e ) {
-            Log.e(TAG, "Unable to delete " + file, e);
+        	LOG.E("deleteFile()", "Unable to delete " + file, e);
             res = false;
         }
 		return res;

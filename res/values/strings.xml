@@ -2,7 +2,7 @@
 <resources>
     <string name="hello">Hello World, LoudBook!</string>
     <string name="app_name">LoudBook</string>
-    <string name="default_search_folder_name">/Audio</string>
+    <string name="default_search_folder_name">/sdcard/Audio/LoudBook</string>
     <string name="open">Open file</string>
     <string name="default_book_config_file_name">MyFirstBook.xml</string>    
 </resources>

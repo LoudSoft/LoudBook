@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, LoudBook!</string>
+    <string name="app_name">LoudBook</string>
+    <string name="default_search_folder_name">/Audio</string>
+    <string name="open">Open file</string>
+    <string name="default_book_config_file_name">MyFirstBook.xml</string>    
+</resources>

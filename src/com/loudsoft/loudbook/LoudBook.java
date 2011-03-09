@@ -1,25 +1,22 @@
-package com.ppvalx.loudbook;
+package com.loudsoft.loudbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class LoudBook extends Activity {
@@ -33,7 +30,9 @@ public class LoudBook extends Activity {
 	private String mDirectoryName = "";
 	private EditText mSearchFolderName;
 	private EditText mBookConfigFileName;
+	private Button mOpenConfigFileButton;
 	private File mFile = null;
+	public static final String EXTRA_FILE_NAME = "com.loudsoft.loudbook.extra_file_name";
 	
 	/** Called when the activity is first created. */
     @Override
@@ -41,12 +40,12 @@ public class LoudBook extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        LOG = new LogPrinter(true, "LoudBook");
+        LOG = new LogPrinter(true, this.getString(R.string.app_name), this.getClass().getSimpleName());
     	context = getApplicationContext();
 
     	mSearchFolderName = (EditText) findViewById(R.id.search_folder_name);
         mBookConfigFileName = (EditText) findViewById(R.id.book_config_file_name);
-        Button mOpenConfigFileButton = (Button) findViewById(R.id.open_config_file_button);
+        mOpenConfigFileButton = (Button) findViewById(R.id.open_config_file_button);
         mOpenConfigFileButton.setOnClickListener(mOpenFileListener );
 
     	String state = Environment.getExternalStorageState();
@@ -100,7 +99,12 @@ public class LoudBook extends Activity {
         	//createExternalStoragePrivatePicture(mFile);
         		
         	if(mFile.exists()) {
-        		Toast.makeText(context, mFile + " exist!", duration).show();
+        		//Toast.makeText(context, mFile + " exist!", duration).show();
+        		
+        		Intent myIntent = new Intent();
+        		myIntent.setClass(LoudBook.this, MainTextOutputActivity.class);
+        		myIntent.putExtra(EXTRA_FILE_NAME, mFile.getAbsolutePath());
+        		startActivity(myIntent);
 /*
         		if(deleteFile(mFile)) {
         			Log.i(TAG, "Deleted " + mFile);        		    
@@ -113,6 +117,7 @@ public class LoudBook extends Activity {
     };
     
     void createExternalStoragePrivatePicture(File file) {
+
     	LOG.E("createExternalStoragePrivatePicture()", "file: " + file);
         // Create a path where we will place our picture in our own private
         // pictures directory.  Note that we don't really need to place a

@@ -1,16 +1,10 @@
 package com.loudsoft.loudbook;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -115,7 +109,7 @@ public class LoudBook extends Activity {
         	}
         }
     };
-    
+/*
     void createExternalStoragePrivatePicture(File file) {
 
     	LOG.E("createExternalStoragePrivatePicture()", "file: " + file);
@@ -157,7 +151,7 @@ public class LoudBook extends Activity {
         	LOG.E("createExternalStoragePrivatePicture()", "Error writing " + file, e);
         }
     }
-
+*/
     boolean deleteFile(File file) {
     	LOG.I("deleteFile()", "file: " + file);
         boolean res = false;

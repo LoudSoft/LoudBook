@@ -1,9 +1,13 @@
 package com.loudsoft.loudbook;
 
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +20,6 @@ import android.widget.TextView;
 public class MainTextOutputActivity extends Activity {
 
 	private LogPrinter LOG;
-	private File mFile;
 	private TextView mMainTextView;
 	private Button mBackButton;
 	
@@ -43,27 +46,46 @@ public class MainTextOutputActivity extends Activity {
         }
         
         //Get the file
-        File mFile = new File(fileName);
+        File xmlFile = new File(fileName);
 
-        //Read text from file
         StringBuilder text = new StringBuilder();
-
+        
         try {
-        	BufferedReader br = new BufferedReader(new FileReader(mFile));
-        	String line;
+        	XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        	factory.setNamespaceAware(true);
+        	XmlPullParser xpp = factory.newPullParser();
 
-        	while ((line = br.readLine()) != null) {
-        		text.append(line);
-        		text.append('\n');
+        	xpp.setInput(new FileReader(xmlFile));
+        	int eventType = xpp.getEventType();
+        	while (eventType != XmlPullParser.END_DOCUMENT) {
+        		if(eventType == XmlPullParser.START_DOCUMENT) {
+        			text.append("Start document");
+        			text.append('\n');
+        		} else if(eventType == XmlPullParser.START_TAG) {
+        			text.append("Start tag " + xpp.getName());
+        			text.append('\n');
+        		} else if(eventType == XmlPullParser.END_TAG) {
+        			text.append("End tag " + xpp.getName());
+        			text.append('\n');
+        		} else if(eventType == XmlPullParser.TEXT) {
+        			text.append("Text " + xpp.getText());
+        			text.append('\n');
+        		}
+        		eventType = xpp.next();
         	}
-        } catch (IOException e) {
-            LOG.E("onCreate()", "Unable to read file: " + mFile, e);
-            return;            
-        }
-        mMainTextView.setText(text);
+        } catch (XmlPullParserException e) {
+            LOG.E("onCreate()", "XmlPullParser error.", e);
+            return;
+        } catch (FileNotFoundException e) {
+            LOG.E("onCreate()", "File not found. File: " + xmlFile, e);
+            return;
+		} catch (IOException e) {
+            LOG.E("onCreate()", "IO error. File: " + xmlFile, e);
+            return;
+		}
+		mMainTextView.setText(text);
     }
-    
-    /**
+        /**
      * Back button
      */
     OnClickListener mBackListener = new OnClickListener() {

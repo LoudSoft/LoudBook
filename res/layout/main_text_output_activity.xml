@@ -12,7 +12,7 @@
 	</ScrollView>
 	<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
 		<Button android:layout_height="wrap_content" android:text="@string/back" android:layout_width="wrap_content" android:id="@+id/back_button" android:layout_gravity="center_horizontal"></Button>
-		<Button android:layout_height="wrap_content" android:text="@string/previous_page" android:id="@+id/previous_page_button" android:layout_width="fill_parent" android:layout_weight="2"></Button>
-		<Button android:layout_height="wrap_content" android:text="@string/next_page" android:id="@+id/next_page_button" android:layout_width="fill_parent" android:layout_weight="2"></Button>
+		<Button android:layout_height="wrap_content" android:text="@string/previous_page" android:id="@+id/previous_page_button" android:layout_width="fill_parent" android:layout_weight="2" android:enabled="false"></Button>
+		<Button android:layout_height="wrap_content" android:text="@string/next_page" android:id="@+id/next_page_button" android:layout_width="fill_parent" android:layout_weight="2" android:enabled="false"></Button>
 	</LinearLayout>
 </LinearLayout>

@@ -1,0 +1,9 @@
+1. Add AlertDialogs
+2. Move XML parsing into separate thread + add progress indication
+3. Add page selection widget
+4. Add settings dialog
+5. Add menu
+6. Add pause button
+
+Note:
+translate.google.com/translate_tts?q=[text]&tl=en

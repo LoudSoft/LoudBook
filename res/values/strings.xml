@@ -9,6 +9,8 @@
     <string name="previous_page">&lt;&lt;&lt;</string>
     <string name="next_page">&gt;&gt;&gt;</string>    
     <string name="browse">Browse</string>
+    <string name="loud_book_file_extension">.lb.xml</string>
+    <string name="audio_file_extension">.mp3</string>
     
 <!-- File dialog resources -->
     <string name="location">Location</string>
@@ -20,5 +22,6 @@
     <string name="create">Create</string>
     <string name="no_data">No Data</string>
 	<color name="gray">#ffff0000</color>
+	<color name="orange">#ffffa500</color>
 	
 </resources>

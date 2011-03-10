@@ -25,12 +25,12 @@ public class LogPrinter {
 	}
 
 	void E(String methodName, String msg) {
-		if(mDBG)
+		//if(mDBG)
 			Log.e(mTAG, mClassName + ": " + methodName + ": " + msg);
 	}
 
 	void E(String methodName, String msg, Throwable tr) {
-		if(mDBG)
+		//if(mDBG)
 			Log.e(mTAG, mClassName + ": " + methodName + ": " + msg, tr);
 	}
 

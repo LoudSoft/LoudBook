@@ -28,7 +28,8 @@ public class LoudBook extends Activity {
 	private Button mBrowseButton;
 	private File mFile = null;
 	public static final String EXTRA_FILE_NAME = "com.loudsoft.loudbook.extra_file_name";
-	private static final int REQUEST_SAVE = 1;
+	private static final int REQUEST_SELECT_LOUD_BOOK_FILE = 1;
+	
 	
 	/** Called when the activity is first created. */
     @Override
@@ -96,7 +97,9 @@ public class LoudBook extends Activity {
             */
         	Intent intent = new Intent(LoudBook.this, FileDialog.class);
         	intent.putExtra(FileDialog.START_PATH, mDirectoryName);
-			startActivityForResult(intent, REQUEST_SAVE);
+        	intent.putExtra(FileDialog.FILE_EXTENSION, context.getString(R.string.loud_book_file_extension));
+        	intent.putExtra(FileDialog.DIR_OR_FILE, FileDialog.SEARCH_FILE);
+			startActivityForResult(intent, REQUEST_SELECT_LOUD_BOOK_FILE);
         }
     };
 
@@ -130,7 +133,7 @@ public class LoudBook extends Activity {
         	}
         	//createExternalStoragePrivatePicture(mFile);
         		
-        	if(mFile.exists()) {
+        	if(mFile.canRead()) {
         		//Toast.makeText(context, mFile + " exist!", duration).show();
         		
         		Intent myIntent = new Intent();
@@ -143,7 +146,7 @@ public class LoudBook extends Activity {
         		}
 */
         	} else {
-        		Toast.makeText(context, mFile + " does not exist!", duration).show();
+        		Toast.makeText(context, "Unable to read file: " + mFile, duration).show();
         	}
         }
     };
@@ -152,21 +155,21 @@ public class LoudBook extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         // See which child activity is calling us back.
         switch (requestCode) {
-            case REQUEST_SAVE:
+            case REQUEST_SELECT_LOUD_BOOK_FILE:
                 // This is the standard resultCode that is sent back if the
                 // activity crashed or didn't doesn't supply an explicit result.
                 if (resultCode == RESULT_OK){
                 	String newFileName = data.getStringExtra(FileDialog.RESULT_PATH); 
                 	mFile = new File(newFileName);
-                	if(mFile.exists()) {
+                	if(mFile.canRead()) {
                 		mDirectoryName = mFile.getParent();
                 		mFileBaseName = mFile.getName();
                 		mSearchFolderName.setText(mDirectoryName);
                 		mBookConfigFileName.setText(mFileBaseName);
                 		LOG.I("onActivityResult()", "Path: " + mDirectoryName + " File: " + mFileBaseName);
                 	} else {
-                    	Toast.makeText(context, "There is no file " + newFileName, duration).show();
-                    	LOG.E("onActivityResult()", "There is no file " + newFileName);
+                    	Toast.makeText(context, "Unable to read file: " + newFileName, duration).show();
+                    	LOG.E("onActivityResult()", "Unable to read file: " + newFileName);
                 		return;
                 	}
                 } 

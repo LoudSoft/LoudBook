@@ -1,0 +1,26 @@
+<!-- LoudSoft https://github.com/LoudSoft/ -->
+
+<body>
+	<!-- Use special word "_sdcard_" instead of "/sdcard" or "/mnt/sdcard" or any else external storage path -->
+	<base_dir>_sdcard_/Audio/loudbook/MyFirstBook/</base_dir>
+	<page audio_file="page_1.mp3">
+		Hello! This is my first loud book!
+		Page #1
+	</page>
+	<page audio_file="page_2.mp3">
+		Hello! This is my first loud book!
+		Page #2
+	</page>
+	<page>
+		Hello! This is my first loud book!
+		Page #3
+	</page>
+	<page audio_file="page_4.mp3">
+		Hello! This is my first loud book!
+		Page #4
+	</page>
+	<page>
+		Hello! This is my first loud book!
+		Page #5
+	</page>
+</body>

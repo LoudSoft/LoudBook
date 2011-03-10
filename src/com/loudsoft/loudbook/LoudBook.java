@@ -25,8 +25,10 @@ public class LoudBook extends Activity {
 	private EditText mSearchFolderName;
 	private EditText mBookConfigFileName;
 	private Button mOpenConfigFileButton;
+	private Button mBrowseButton;
 	private File mFile = null;
 	public static final String EXTRA_FILE_NAME = "com.loudsoft.loudbook.extra_file_name";
+	private static final int REQUEST_SAVE = 1;
 	
 	/** Called when the activity is first created. */
     @Override
@@ -40,8 +42,20 @@ public class LoudBook extends Activity {
     	mSearchFolderName = (EditText) findViewById(R.id.search_folder_name);
         mBookConfigFileName = (EditText) findViewById(R.id.book_config_file_name);
         mOpenConfigFileButton = (Button) findViewById(R.id.open_config_file_button);
-        mOpenConfigFileButton.setOnClickListener(mOpenFileListener );
+        mOpenConfigFileButton.setOnClickListener(mOpenFileListener);
+        mBrowseButton = (Button) findViewById(R.id.browse_button);
+        mBrowseButton.setOnClickListener(mBrowseListener);
 
+        checkExternalStorage();
+
+    	if(mExternalStorageAvailable) {
+    		File sdDir = Environment.getExternalStorageDirectory();
+    		mSearchFolderName.setText(sdDir.getPath() + "/loudsoft/loudbook/");
+            LOG.I("onCreate()","mSearchFolderName = " + mSearchFolderName.getText().toString());
+    	}
+    }
+    
+    private void checkExternalStorage(){
     	String state = Environment.getExternalStorageState();
 
     	if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -56,35 +70,59 @@ public class LoudBook extends Activity {
     	    //  to know is we can neither read nor write
     	    mExternalStorageAvailable = mExternalStorageWriteable = false;
     	}
-
-    	if(mExternalStorageAvailable) {
-    		File sdDir = Environment.getExternalStorageDirectory();
-    		mSearchFolderName.setText(sdDir.getPath() + "/loudsoft/loudbook/");
-            LOG.I("onCreate()","mSearchFolderName = " + mSearchFolderName.getText().toString());
-    	}
     }
     
+    /**
+     * Browse button
+     */
+    OnClickListener mBrowseListener = new OnClickListener() {
+        public void onClick(View v) {
+        	LOG.D("mBrowseListener", "start");
+
+        	mFileBaseName = mBookConfigFileName.getText().toString();
+			mDirectoryName = mSearchFolderName.getText().toString();
+			checkExternalStorage();
+        	if(!mExternalStorageAvailable) {
+        		LOG.E("onClick()", "External storage is not available");   
+        		Toast.makeText(context, "SD card is not available!", duration).show();
+        		return;
+        	}
+        	/*
+        	File directory = new File(mDirectoryName);
+        	if(!directory.exists() && !directory.mkdirs()) {
+        		LOG.E("onClick()", "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
+        		return;
+            }
+            */
+        	Intent intent = new Intent(LoudBook.this, FileDialog.class);
+        	intent.putExtra(FileDialog.START_PATH, mDirectoryName);
+			startActivityForResult(intent, REQUEST_SAVE);
+        }
+    };
+
     /**
      * Open config file button
      */
     OnClickListener mOpenFileListener = new OnClickListener() {
         public void onClick(View v) {
             //finish();
-        	LOG.D("onClick()", "start");
+        	LOG.D("mOpenFileListener", "start");
 
         	mFileBaseName = mBookConfigFileName.getText().toString();
-			//mFileBaseName = "my_icon.png";
 			mDirectoryName = mSearchFolderName.getText().toString();
 			
         	if(!mExternalStorageAvailable) {
-        		LOG.E("onClick()", "External storage is not available");        		
+        		LOG.E("onClick()", "External storage is not available"); 
+        		Toast.makeText(context, "SD card is not available!", duration).show();
         		return;
         	}
+        	/*
         	File directory = new File(mDirectoryName);
         	if(!directory.exists() && !directory.mkdirs()) {
-        		LOG.E("onClick()", "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
+        		LOG.E("onClick()", "Unable to create new dir: dir = " + mDirectoryName);
         		return;
             }
+            */
         	mFile = new File(mDirectoryName, mFileBaseName);
         	if(mFile == null){
         		LOG.E("onClick()", "Unable to create new file: dir = " + mDirectoryName + " file = " + mFileBaseName);
@@ -109,6 +147,39 @@ public class LoudBook extends Activity {
         	}
         }
     };
+    
+ // Listen for results.
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        // See which child activity is calling us back.
+        switch (requestCode) {
+            case REQUEST_SAVE:
+                // This is the standard resultCode that is sent back if the
+                // activity crashed or didn't doesn't supply an explicit result.
+                if (resultCode == RESULT_OK){
+                	String newFileName = data.getStringExtra(FileDialog.RESULT_PATH); 
+                	mFile = new File(newFileName);
+                	if(mFile.exists()) {
+                		mDirectoryName = mFile.getParent();
+                		mFileBaseName = mFile.getName();
+                		mSearchFolderName.setText(mDirectoryName);
+                		mBookConfigFileName.setText(mFileBaseName);
+                		LOG.I("onActivityResult()", "Path: " + mDirectoryName + " File: " + mFileBaseName);
+                	} else {
+                    	Toast.makeText(context, "There is no file " + newFileName, duration).show();
+                    	LOG.E("onActivityResult()", "There is no file " + newFileName);
+                		return;
+                	}
+                } 
+                else {
+                	Toast.makeText(context, "Unable to retrive file name", duration).show();
+                	LOG.E("onActivityResult()", "Unable to retrive file name");
+            		return;
+                }
+            default:
+                break;
+        }
+    }
+
 /*
     void createExternalStoragePrivatePicture(File file) {
 
@@ -152,6 +223,7 @@ public class LoudBook extends Activity {
         }
     }
 */
+    /*
     boolean deleteFile(File file) {
     	LOG.I("deleteFile()", "file: " + file);
         boolean res = false;
@@ -166,4 +238,5 @@ public class LoudBook extends Activity {
         }
 		return res;
     }
+    */
 }

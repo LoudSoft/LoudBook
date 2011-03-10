@@ -4,13 +4,24 @@
 	android:layout_height="fill_parent">
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:text="@string/app_name"
-		android:textStyle="bold" android:typeface="monospace" android:gravity="center"/>
+		android:textStyle="bold" android:typeface="monospace" android:gravity="center" />
+	<TextView android:id="@+id/textView1" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="Folder:"></TextView>
 	<EditText android:id="@+id/search_folder_name"
 		android:layout_width="match_parent" android:layout_height="wrap_content"
-		android:text="@string/default_search_folder_name"/>
+		android:text="@string/default_search_folder_name" />
+	<TextView android:id="@+id/textView2" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="File:"></TextView>
 	<EditText android:text="@string/default_book_config_file_name"
 		android:id="@+id/book_config_file_name" android:layout_width="match_parent"
-		android:layout_height="wrap_content"/>
-	<Button android:text="@string/open" android:id="@+id/open_config_file_button"
-		android:layout_width="wrap_content" android:layout_height="wrap_content" android:width="200dip" android:layout_gravity="center"/>
+		android:layout_height="wrap_content" />
+	<LinearLayout android:layout_width="match_parent"
+		android:layout_height="wrap_content" android:id="@+id/linearLayout1">
+		<Button android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:id="@+id/browse_button"
+			android:text="@string/browse"></Button>
+		<Button android:width="200dip" android:layout_height="wrap_content"
+			android:text="@string/open" android:id="@+id/open_config_file_button"
+			android:layout_gravity="center" android:layout_width="fill_parent"></Button>
+	</LinearLayout>
 </LinearLayout>

@@ -12,7 +12,8 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:label="@string/app_name" android:name=".MainTextOutputActivity">
+		<activity android:name="MainTextOutputActivity" android:label="@string/app_name">
 		</activity>
+		<activity android:name="FileDialog"></activity>
 	</application>
 </manifest>

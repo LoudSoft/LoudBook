@@ -4,6 +4,21 @@
     <string name="app_name">LoudBook</string>
     <string name="default_search_folder_name">/sdcard/loudsoft/loudbook/</string>
     <string name="open">Open file</string>
-    <string name="default_book_config_file_name">MyFirstBook.xml</string>
-    <string name="back">&lt; Back</string>    
+    <string name="default_book_config_file_name">MyFirstBook.lb.xml</string>
+    <string name="back">&lt; Back</string>
+    <string name="previous_page">&lt;&lt;&lt;</string>
+    <string name="next_page">&gt;&gt;&gt;</string>    
+    <string name="browse">Browse</string>
+    
+<!-- File dialog resources -->
+    <string name="location">Location</string>
+    <string name="cant_read_folder">folder can\'t be read!</string>
+    <string name="nnew">New</string>
+    <string name="select">Select</string>
+    <string name="file_name">File name:</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="no_data">No Data</string>
+	<color name="gray">#ffff0000</color>
+	
 </resources>

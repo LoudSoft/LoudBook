@@ -166,6 +166,14 @@ public class MainTextOutputActivity extends Activity {
 		}
     }
     
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMediaPlayer.release();
+        mMediaPlayer = null;
+    }
+
+    
     private boolean playAudio(String file) {
     	if(file.isEmpty())
     		return true;
@@ -265,6 +273,7 @@ public class MainTextOutputActivity extends Activity {
         	LOG.D("mBackListener", "Go back to LoudBook main activity.");
 
     		startActivity(new Intent(MainTextOutputActivity.this, LoudBook.class));
+    		finish();
         }
     };
     

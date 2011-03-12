@@ -11,7 +11,14 @@
     <string name="browse">Browse</string>
     <string name="loud_book_file_extension">.lb.xml</string>
     <string name="audio_file_extension">.mp3</string>
-    
+
+<!-- Error messages -->
+    <string name="sd_card_isnt_available">SD card is not available!</string>
+    <string name="parsing_error">Parsing error!</string>
+
+<!-- Status messages -->
+    <string name="parsing_please_wait">Parsing. Please wait...</string>
+        
 <!-- File dialog resources -->
     <string name="location">Location</string>
     <string name="cant_read_folder">folder can\'t be read!</string>

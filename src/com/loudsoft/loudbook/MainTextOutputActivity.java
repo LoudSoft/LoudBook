@@ -12,11 +12,14 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -36,11 +39,17 @@ public class MainTextOutputActivity extends Activity {
 	private int mPageNumber = -1;
 	private File mAudioFile;
 	private MediaPlayer mMediaPlayer = null;
-
+	private File mXMLFile = null;
+	private boolean mParsingResult = false;
+	private boolean mCancelParsing = false;
+	private boolean mFirstStart = true;
+	private ProgressDialog mParcingProgressDialog = null;
+	
 	public static final String BASE_AUDIO_DIR_TAG_NAME = "base_audio_dir";
 	public static final String PAGE_TAG_NAME = "page";
 	public static final String PAGE_AUDIO_FILE_ATTRIBUTE_NAME = "audio_file";
 	private Map<Integer, ParcedPage> mParcedData = new HashMap<Integer, ParcedPage>();
+	
 //	private boolean mExternalStorageAvailable;
 //	private boolean mExternalStorageWriteable;
 	private static final int REQUEST_CHOOSE_AUDIO_DIR = 2;
@@ -51,7 +60,7 @@ public class MainTextOutputActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_text_output_activity);
         LOG = new LogPrinter(true, this.getString(R.string.app_name), this.getClass().getSimpleName());
-        context = getApplicationContext();
+        context = this;//getApplicationContext();
         
         mPageNumber = 0;
         mMainTextView = (TextView) findViewById(R.id.main_text_view);
@@ -72,10 +81,57 @@ public class MainTextOutputActivity extends Activity {
             LOG.E("onCreate()", "Unable to retrieve file name");
             return;
         }
-        
-        //Get the file
-        File xmlFile = new File(fileName);
 
+        //Get the file
+        mXMLFile = new File(fileName);
+        
+        mMediaPlayer = new MediaPlayer();
+    }
+        
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMediaPlayer.release();
+        mMediaPlayer = null;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mFirstStart) {
+            mParcingProgressDialog = new ProgressDialog(context);
+            mParcingProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mParcingProgressDialog.setMessage(getText(R.string.parsing_please_wait));
+            mParcingProgressDialog.setButton(getText(R.string.cancel), 
+    				new DialogInterface.OnClickListener() {
+    					@Override
+    					public void onClick(DialogInterface dialog,	int which) {
+    						mCancelParsing = true;
+    					}
+    				});
+            mParcingProgressDialog.show();
+        	//mParcingProgressDialog.setProgress(0);
+        
+        	threadParseLoudBookXML();
+        	mFirstStart = false;
+        }
+    }
+
+    // Need handler for callbacks to the UI thread
+    final Handler mHandler = new Handler();
+
+    // Create runnable for posting
+    final Runnable mUpdateResults = new Runnable() {
+        public void run() {
+        	onParcingComplete();
+    		mParcingProgressDialog.cancel();
+    		Toast.makeText(context, "Parced " + mParcedData.size() + " pages", duration).show();
+        }
+    };
+    
+    private boolean parseLoudBookXML() {
+    	LOG.D("parseLoudBookXML()", "Parcing: " + mXMLFile);
+    	
         //StringBuilder text = new StringBuilder();
         String tagName = "";
         String audioFileName = "";
@@ -89,13 +145,14 @@ public class MainTextOutputActivity extends Activity {
         	XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         	factory.setNamespaceAware(true);
         	XmlPullParser xpp = factory.newPullParser();
-        	xpp.setInput(new FileReader(xmlFile));
+        	FileReader xmlFileReader = new FileReader(mXMLFile);
+        	xpp.setInput(xmlFileReader);
         	int eventType = xpp.getEventType();
-        	while (eventType != XmlPullParser.END_DOCUMENT) {
+        	while (eventType != XmlPullParser.END_DOCUMENT && !mCancelParsing) {
         		if(eventType == XmlPullParser.START_DOCUMENT) {
         		} else if(eventType == XmlPullParser.START_TAG) {
         			tagName = xpp.getName();
-					LOG.I("onCreate()", "Parced tagName: " + tagName);
+					//LOG.I("parseLoudBookXML()", "Parced tagName: " + tagName);
         			if(tagName.equalsIgnoreCase(PAGE_TAG_NAME)) {
         				isPageTag = true;
         				audioFileName = xpp.getAttributeValue(null, PAGE_AUDIO_FILE_ATTRIBUTE_NAME);
@@ -116,43 +173,70 @@ public class MainTextOutputActivity extends Activity {
         			{
         				count++;
         				mParcedData.put(count, new ParcedPage(audioFileName, parcedText));
-        			} else if(isBaseAudioDirTag)
-        			{
+        				//mParcingProgressDialog.setMessage(getText(R.string.parsing_please_wait) + " \nPage: " + count);
+        			} else if(isBaseAudioDirTag) {
         				mBaseAudioDir = parcedText;
-        				LOG.I("onCreate()", "Parced mBaseAudioDir: " + mBaseAudioDir);
+        				LOG.I("parseLoudBookXML()", "Parced mBaseAudioDir: " + mBaseAudioDir);
         			}
         		}
+        		//mParcingProgressDialog.setProgress();
         		eventType = xpp.next();
         	}
         } catch (XmlPullParserException e) {
-            LOG.E("onCreate()", "XmlPullParser error.", e);
-            return;
+            LOG.E("parseLoudBookXML()", "XmlPullParser error.", e);
+            return false;
         } catch (FileNotFoundException e) {
-            LOG.E("onCreate()", "File not found. File: " + xmlFile, e);
-            return;
+            LOG.E("parseLoudBookXML()", "File not found. File: " + mXMLFile, e);
+            return false;
 		} catch (IOException e) {
-            LOG.E("onCreate()", "IO error. File: " + xmlFile, e);
-            return;
+            LOG.E("parseLoudBookXML()", "IO error. File: " + mXMLFile, e);
+            return false;
 		}
-		
-		mMediaPlayer = new MediaPlayer();
-		
+		return true;
+    }
+
+
+    protected void threadParseLoudBookXML() {
+        Thread t = new Thread() {
+            public void run() {
+            	/*
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    LOG.E("threadParseLoudBookXML()", "Thread Interrupted");
+                }
+                */
+            	mParsingResult = parseLoudBookXML();
+                mHandler.post(mUpdateResults);
+            }
+        };
+        t.start();
+    }
+
+
+    private void onParcingComplete() {
 		mPageNumber = 1;
+		if(!mParsingResult) {
+			mMainTextView.setText(getText(R.string.parsing_error));
+			Toast.makeText(context, getText(R.string.parsing_error), duration).show();
+			LOG.E("onParcingComplete()", getText(R.string.parsing_error).toString());
+			return;
+		}
 		if(mParcedData.containsKey(mPageNumber)) {
 			mMainTextView.setText(mParcedData.get(mPageNumber).text);
 			if(mParcedData.size() > 1)
 				mNextPageButton.setEnabled(true);
 
 		} else {
-            LOG.E("onCreate()", "Empty hash map! Size = " + mParcedData.size() + ", mPageNumber = " + mPageNumber);
+            LOG.E("onParcingComplete()", "Empty hash map! Size = " + mParcedData.size() + ", mPageNumber = " + mPageNumber);
             return;
 		}
 
 		String sdDir = Environment.getExternalStorageDirectory().getPath();
 		if(mBaseAudioDir != null && !mBaseAudioDir.isEmpty()) {
-			LOG.I("onCreate()", "mBaseAudioDir before: " + mBaseAudioDir);
+			LOG.I("onParcingComplete()", "mBaseAudioDir before: " + mBaseAudioDir);
 			mBaseAudioDir = mBaseAudioDir.replaceAll("_sdcard_", sdDir);
-			LOG.I("onCreate()", "mBaseAudioDir after : " + mBaseAudioDir);
+			LOG.I("onParcingComplete()", "mBaseAudioDir after : " + mBaseAudioDir);
 			File audioDir = new File(mBaseAudioDir); 
 			if(!audioDir.canRead()) {
 				selectDir();
@@ -164,13 +248,6 @@ public class MainTextOutputActivity extends Activity {
 			mBaseAudioDir = sdDir;
 			selectDir();
 		}
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
     }
 
     

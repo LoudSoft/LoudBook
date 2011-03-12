@@ -3,7 +3,9 @@ package com.loudsoft.loudbook;
 import java.io.File;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -85,7 +87,13 @@ public class LoudBook extends Activity {
 			checkExternalStorage();
         	if(!mExternalStorageAvailable) {
         		LOG.E("onClick()", "External storage is not available");   
-        		Toast.makeText(context, "SD card is not available!", duration).show();
+        		//Toast.makeText(context, "SD card is not available!", duration).show();
+				new AlertDialog.Builder(context).setIcon(R.drawable.icon)
+					.setTitle(getText(R.string.sd_card_isnt_available))
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,	int which) {}
+						}).show();
         		return;
         	}
         	/*

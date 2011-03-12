@@ -1,9 +1,42 @@
-1. Add AlertDialogs
-2. Move XML parsing into separate thread + add progress indication
-3. Add page selection widget
-4. Add settings dialog
-5. Add menu
-6. Add pause button
+TO DO:
++/-	Add AlertDialogs
++ 	Move XML parsing into separate thread + add progress indication
+- 	Add page selection widget
+*	Open next page (page with audio file) when current audio file ends.
+* 	Add settings dialog
+		a. Delay (between pages and music)
+		b. Sound volume
+		c. Default audio directory (if audio directory is not specified or does not exist)
+			- root: "/"
+			- sdcard (replaced by getExternalStorageDirectory()): "_sdcard_/"
+			- other: selected by user
+		d. Font, font and background size, font and background color (color picker widget, background image)
+		e. Settings saving
+		f. New page sound (number + google translate?)
+* 	Add menu
+		a. Settings
+		b. Base audio directory
+		c. Change audio file
+		d. Exit button?
+		e. Page selection dialog
+* 	Add pause button
+* 	Editing loud book files (*.lb.xml)
+* 	SDK versions: from 2.2 Froyo
+* 	Design
+		a. Different dimensions
+		b. Languages: English + Russian
+		c. Images, effects, buttons... 
+* 	Web page + HowTo + Free books
+*	Download from the web
+* 	Android market
+* 	Spelling text by Google translate
+		a. Additional library
+		b. Language 
+
+Tests:
+* 	SD card is not available
+* 	Wrong dirs name
+* 	Wrong files name
 
 Note:
 translate.google.com/translate_tts?q=[text]&tl=en

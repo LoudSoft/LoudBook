@@ -24,4 +24,9 @@
 			android:text="@string/open" android:id="@+id/open_config_file_button"
 			android:layout_gravity="center" android:layout_width="fill_parent"></Button>
 	</LinearLayout>
+	<HorizontalScrollView android:id="@+id/horizontalScrollView1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+		<LinearLayout android:layout_width="match_parent" android:id="@+id/linearLayout2" android:layout_height="match_parent" android:orientation="horizontal"></LinearLayout>
+	</HorizontalScrollView>
+	<TextView android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/recent_used"></TextView>
+	<ListView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/recent_used_files_list"></ListView>
 </LinearLayout>

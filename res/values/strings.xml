@@ -9,6 +9,7 @@
 <!-- GUI text -->
     <string name="page">Page:</string>
     <string name="audio">Audio:</string>
+    <string name="recent_used">Recent used:</string>
 
 <!-- Buttons -->
     <string name="open">Open file</string>

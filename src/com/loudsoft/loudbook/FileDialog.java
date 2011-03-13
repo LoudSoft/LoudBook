@@ -10,15 +10,10 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
-//import android.graphics.Color;
 import android.os.Bundle;
-//import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-//import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-//import android.widget.EditText;
-//import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -29,8 +24,8 @@ public class FileDialog extends ListActivity {
 	private Context context;
 	private int duration = Toast.LENGTH_LONG;
 	
-	private static final String ITEM_KEY = "key";
-	private static final String ITEM_IMAGE = "image";
+	public static final String ITEM_KEY = "key";
+	public static final String ITEM_IMAGE = "image";
 	public static final String FILE_EXTENSION = "FILE_EXTENSION";
 	public static final String DIR_OR_FILE = "DIR_OR_FILE";
 	public static final int SEARCH_DIR = 1;

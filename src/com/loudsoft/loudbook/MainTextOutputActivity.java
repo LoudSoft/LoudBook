@@ -52,7 +52,7 @@ public class MainTextOutputActivity extends Activity {
 	public static final String BASE_AUDIO_DIR_TAG_NAME = "base_audio_dir";
 	public static final String PAGE_TAG_NAME = "page";
 	public static final String PAGE_AUDIO_FILE_ATTRIBUTE_NAME = "audio_file";
-	private Map<Integer, ParcedPage> mParcedData = new HashMap<Integer, ParcedPage>();
+	private Map<Integer, PageParcedData> mParcedData = new HashMap<Integer, PageParcedData>();
 	
 //	private boolean mExternalStorageAvailable;
 //	private boolean mExternalStorageWriteable;
@@ -206,7 +206,7 @@ public class MainTextOutputActivity extends Activity {
         			if(audioFileName != null && isPageTag)
         			{
         				count++;
-        				mParcedData.put(count, new ParcedPage(audioFileName, parcedText));
+        				mParcedData.put(count, new PageParcedData(audioFileName, parcedText));
         				//mParcingProgressDialog.setMessage(getText(R.string.parsing_please_wait) + " \nPage: " + count);
         			} else if(isBaseAudioDirTag) {
         				mBaseAudioDir = parcedText;

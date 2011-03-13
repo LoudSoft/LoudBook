@@ -4,9 +4,9 @@ TO DO:
 - 	Add page selection widget
 + 	Add pause button
 +/-	Open next page (page with audio file) when current audio file ends.
-*	Recent used files 
-		a. List of X last used, not repeated files on the main page
-		b. X sets in the setting dialog
++/-	Recent used files 
+	+	a. List of X last used, not repeated files on the main page
+	-	b. X sets in the setting dialog
 * 	Add settings dialog
 		a. Delay (between pages and music)
 		b. Sound volume
@@ -50,6 +50,7 @@ setOnCompletionListener()
 03-13 12:26:23.889: ERROR/MP3Extractor(34): Unable to resync. Signalling end of stream.
 03-13 12:26:23.889: INFO/LoudBook(589): MainTextOutputActivity: MediaPlayer onCompletion(): Go to next page #9
 03-13 12:26:23.934: INFO/StagefrightPlayer(34): setDataSource('/mnt/sdcard/Audio/loudbook/MyFirstBook/page_0004.mp3')
+*	Dynamic Shared Preferences amount?
 
 Tests:
 * 	SD card is not available

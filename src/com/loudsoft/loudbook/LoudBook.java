@@ -1,18 +1,25 @@
 package com.loudsoft.loudbook;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 public class LoudBook extends Activity {
@@ -28,11 +35,27 @@ public class LoudBook extends Activity {
 	private EditText mBookConfigFileName;
 	private Button mOpenConfigFileButton;
 	private Button mBrowseButton;
+	private ListView mRecentUsedFiles;
 	private File mFile = null;
+	private ArrayList<fileItem> mRecentUsedFileNames = null;
+	private ArrayList<HashMap<String, Object>> mList;
 	public static final String EXTRA_FILE_NAME = "com.loudsoft.loudbook.extra_file_name";
+	private static final String RESENT_USED_BASE_FILE_NAME_KEY = "com.loudsoft.loudbook.recent_used_base_file_name_key";
+	private static final String RESENT_USED_DIR_NAME_KEY = "com.loudsoft.loudbook.recent_used_dir_name_key";
 	private static final int REQUEST_SELECT_LOUD_BOOK_FILE = 1;
+	private static final String PREFS_KEY = "com.loudsoft.loudbook.prefense_key";
+    private static final int MAX_COUNT = 10;
 	
-	
+    private class fileItem {
+    	public String dir = null;
+    	public String file = null;
+    	
+    	public fileItem(String newDir, String newFile) {
+    		dir = newDir;
+    		file = newFile;
+    	}
+    }
+    
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,16 +71,73 @@ public class LoudBook extends Activity {
         mOpenConfigFileButton.setOnClickListener(mOpenFileListener);
         mBrowseButton = (Button) findViewById(R.id.browse_button);
         mBrowseButton.setOnClickListener(mBrowseListener);
+        mRecentUsedFiles = (ListView) findViewById(R.id.recent_used_files_list);
 
-        checkExternalStorage();
+        mList = new ArrayList<HashMap<String, Object>>();
+        SimpleAdapter fileList = new SimpleAdapter(this, mList,
+				R.layout.file_dialog_row,
+				new String[] { FileDialog.ITEM_KEY, FileDialog.ITEM_IMAGE }, new int[] {
+						R.id.fdrowtext, R.id.fdrowimage });
+        
+        mRecentUsedFiles.setAdapter(fileList);
 
+        SharedPreferences settings = getSharedPreferences(PREFS_KEY, 0);
+        
+        mRecentUsedFileNames = new ArrayList<fileItem>();
+        String fileName = "";
+        String dirName = "";
+        for(int i = 0; i < MAX_COUNT; i++) {
+        	fileName = settings.getString(RESENT_USED_BASE_FILE_NAME_KEY + "_" + i, "");
+        	dirName = settings.getString(RESENT_USED_DIR_NAME_KEY + "_" + i, "");
+        	if(!fileName.isEmpty() && !dirName.isEmpty()) {
+        		mRecentUsedFileNames.add(new fileItem(dirName, fileName));
+        		addItem(fileName, R.drawable.file);
+        	}
+        }
+/*
+        addItem("100000000100000000100000000100000000100", R.drawable.file);
+        addItem("2", R.drawable.file);
+        addItem("3", R.drawable.file);
+        addItem("4", R.drawable.file);
+        addItem("5", R.drawable.file);
+        addItem("6", R.drawable.file);
+        addItem("7", R.drawable.file);
+        addItem("8", R.drawable.file);
+        addItem("9", R.drawable.file);
+        addItem("10", R.drawable.file);
+        addItem("1111", R.drawable.file);
+*/
+        fileList.notifyDataSetChanged();
+        
+        mRecentUsedFiles.setOnItemClickListener(new OnItemClickListener() {
+        	@Override
+        	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        		setDirAndFile(mRecentUsedFileNames.get(position).dir, mRecentUsedFileNames.get(position).file);
+        	}
+        });
+        	
+        	checkExternalStorage();
+        
     	if(mExternalStorageAvailable) {
     		File sdDir = Environment.getExternalStorageDirectory();
     		mSearchFolderName.setText(sdDir.getPath() + "/loudsoft/loudbook/");
             LOG.I("onCreate()","mSearchFolderName = " + mSearchFolderName.getText().toString());
     	}
     }
-    
+
+	private void addItem(String tmpFileName, int imageId) {
+		LOG.I("addItem()","fileName = " + tmpFileName);
+		HashMap<String, Object> item = new HashMap<String, Object>();
+		item.put(FileDialog.ITEM_KEY, tmpFileName);
+		item.put(FileDialog.ITEM_IMAGE, imageId);
+		mList.add(item);
+	}
+	
+	private void setDirAndFile(String dir, String file) {
+		mSearchFolderName.setText(dir);
+		mBookConfigFileName.setText(file);
+	}
+	
     private void checkExternalStorage(){
     	String state = Environment.getExternalStorageState();
 
@@ -148,11 +228,36 @@ public class LoudBook extends Activity {
         		myIntent.setClass(LoudBook.this, MainTextOutputActivity.class);
         		myIntent.putExtra(EXTRA_FILE_NAME, mFile.getAbsolutePath());
         		startActivity(myIntent);
+        		
+        		SharedPreferences settings = getSharedPreferences(PREFS_KEY, 0);
+        		SharedPreferences.Editor editor = settings.edit();
+        		editor.putString(RESENT_USED_BASE_FILE_NAME_KEY + "_" + 0, mFile.getName());
+        		editor.putString(RESENT_USED_DIR_NAME_KEY + "_" + 0, mFile.getParent());
+        		LOG.I("mOpenFileListener", "Put file # 0: dir:" + mFile.getParent() + " file:" + mFile.getName());
+        		int z = 1;
+                for(int i = 0; i < mRecentUsedFileNames.size(); i++) {
+                	if(mFile.getName().compareTo(mRecentUsedFileNames.get(i).file) != 0 
+                			|| mFile.getParent().compareTo(mRecentUsedFileNames.get(i).dir) != 0) 
+                	{
+                		editor.putString(RESENT_USED_BASE_FILE_NAME_KEY + "_" + z, mRecentUsedFileNames.get(i).file);
+                		editor.putString(RESENT_USED_DIR_NAME_KEY + "_" + z, mRecentUsedFileNames.get(i).dir);
+                		LOG.I("mOpenFileListener", "Put file # " + z + ": dir=" + mRecentUsedFileNames.get(i).dir + " file=" + mRecentUsedFileNames.get(i).file);
+                		z++;
+                	}
+                }
+                for(int i = z; i < mRecentUsedFileNames.size(); i++) {
+                	editor.putString(RESENT_USED_BASE_FILE_NAME_KEY + "_" + i, "");
+                	editor.putString(RESENT_USED_DIR_NAME_KEY + "_" + i, "");
+                	LOG.I("mOpenFileListener", "Put file # " + i + ": dir=" + " " + " file=" + " ");
+                }
+        	    editor.commit();
+
 /*
         		if(deleteFile(mFile)) {
         			Log.i(TAG, "Deleted " + mFile);        		    
         		}
 */
+        		finish();
         	} else {
         		Toast.makeText(context, "Unable to read file: " + mFile, duration).show();
         	}
@@ -172,8 +277,7 @@ public class LoudBook extends Activity {
                 	if(mFile.canRead()) {
                 		mDirectoryName = mFile.getParent();
                 		mFileBaseName = mFile.getName();
-                		mSearchFolderName.setText(mDirectoryName);
-                		mBookConfigFileName.setText(mFileBaseName);
+                		setDirAndFile(mDirectoryName, mFileBaseName);
                 		LOG.I("onActivityResult()", "Path: " + mDirectoryName + " File: " + mFileBaseName);
                 	} else {
                     	Toast.makeText(context, "Unable to read file: " + newFileName, duration).show();

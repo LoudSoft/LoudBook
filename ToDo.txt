@@ -2,7 +2,11 @@ TO DO:
 +/-	Add AlertDialogs
 + 	Move XML parsing into separate thread + add progress indication
 - 	Add page selection widget
-*	Open next page (page with audio file) when current audio file ends.
++ 	Add pause button
++/-	Open next page (page with audio file) when current audio file ends.
+*	Recent used files 
+		a. List of X last used, not repeated files on the main page
+		b. X sets in the setting dialog
 * 	Add settings dialog
 		a. Delay (between pages and music)
 		b. Sound volume
@@ -19,7 +23,9 @@ TO DO:
 		c. Change audio file
 		d. Exit button?
 		e. Page selection dialog
-* 	Add pause button
+*	"Move to SD card" support
+*	Touch support (changing pages)
+*	"File not found" error sound
 * 	Editing loud book files (*.lb.xml)
 * 	SDK versions: from 2.2 Froyo
 * 	Design
@@ -28,15 +34,28 @@ TO DO:
 		c. Images, effects, buttons... 
 * 	Web page + HowTo + Free books
 *	Download from the web
+* 	Code comments
+*	Refactoring:
+		a. Finite-state machine for media player
+		b. Semaphores for expensive operations
 * 	Android market
 * 	Spelling text by Google translate
 		a. Additional library
 		b. Language 
+		
+PROBLEMS:
+*	Next song after current song ending:
+setOnCompletionListener()
+03-13 12:26:20.408: WARN/AudioFlinger(34): write blocked for 89 msecs, 1409 delayed writes, thread 0xc658
+03-13 12:26:23.889: ERROR/MP3Extractor(34): Unable to resync. Signalling end of stream.
+03-13 12:26:23.889: INFO/LoudBook(589): MainTextOutputActivity: MediaPlayer onCompletion(): Go to next page #9
+03-13 12:26:23.934: INFO/StagefrightPlayer(34): setDataSource('/mnt/sdcard/Audio/loudbook/MyFirstBook/page_0004.mp3')
 
 Tests:
 * 	SD card is not available
 * 	Wrong dirs name
 * 	Wrong files name
+*	Wrong audio file or lb file format
 
 Note:
 translate.google.com/translate_tts?q=[text]&tl=en

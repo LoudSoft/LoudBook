@@ -32,9 +32,12 @@ public class MainTextOutputActivity extends Activity {
 	private Context context;
 	private int duration = Toast.LENGTH_LONG;
 	private TextView mMainTextView;
+	private TextView mPageNumberTextView;
+	private TextView mAudioFileBaseNameTextView;
 	private Button mBackButton;
 	private Button mPreviousPageButton;
 	private Button mNextPageButton;
+	private Button mPauseButton;
 	private String mBaseAudioDir;
 	private int mPageNumber = -1;
 	private File mAudioFile;
@@ -43,6 +46,7 @@ public class MainTextOutputActivity extends Activity {
 	private boolean mParsingResult = false;
 	private boolean mCancelParsing = false;
 	private boolean mFirstStart = true;
+	private boolean mIsPlaying = false;
 	private ProgressDialog mParcingProgressDialog = null;
 	
 	public static final String BASE_AUDIO_DIR_TAG_NAME = "base_audio_dir";
@@ -64,12 +68,16 @@ public class MainTextOutputActivity extends Activity {
         
         mPageNumber = 0;
         mMainTextView = (TextView) findViewById(R.id.main_text_view);
+        mPageNumberTextView = (TextView) findViewById(R.id.page_number_text);
+        mAudioFileBaseNameTextView = (TextView) findViewById(R.id.audio_file_base_name);
         mBackButton = (Button) findViewById(R.id.back_button);
         mBackButton.setOnClickListener(mBackListener);
         mPreviousPageButton = (Button) findViewById(R.id.previous_page_button);
         mPreviousPageButton.setOnClickListener(mPreviousPageListener);
         mNextPageButton = (Button) findViewById(R.id.next_page_button);
         mNextPageButton.setOnClickListener(mNextPageListener);
+        mPauseButton = (Button) findViewById(R.id.pause_button);
+        mPauseButton.setOnClickListener(mPauseListener);
         
         Bundle extras = getIntent().getExtras();
         if (extras == null) {
@@ -86,13 +94,39 @@ public class MainTextOutputActivity extends Activity {
         mXMLFile = new File(fileName);
         
         mMediaPlayer = new MediaPlayer();
+        
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mPreviousPageButton.setEnabled(true);
+                
+                if(mParcedData.containsKey(mPageNumber + 1)) {
+                    mPageNumber++;
+                    //find next page with audio file
+                    while(mParcedData.containsKey(mPageNumber + 1) && mParcedData.get(mPageNumber).audioFile.isEmpty()) {
+                    	mPageNumber++;
+                    }
+                    LOG.I("MediaPlayer onCompletion()", "Go to next page #" + (mPageNumber + 1));
+
+                    changePage();
+                    //LOG.I("mNextPageListener()", "Text: " + mParcedData.get(mPageNumber).text);
+                	if(!mParcedData.containsKey(mPageNumber + 1)) {
+                		mNextPageButton.setEnabled(false);
+                	}
+                } else {
+                    LOG.I("mNextPageListener()", "Last page! Size = " + mParcedData.size() + ", mPageNumber = " + mPageNumber);
+            	}
+            }
+        });
     }
         
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+        if(mMediaPlayer != null) {
+        	mMediaPlayer.release();
+        	mMediaPlayer = null;
+        }
+        mIsPlaying = false;
     }
 
     @Override
@@ -102,7 +136,7 @@ public class MainTextOutputActivity extends Activity {
             mParcingProgressDialog = new ProgressDialog(context);
             mParcingProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             mParcingProgressDialog.setMessage(getText(R.string.parsing_please_wait));
-            mParcingProgressDialog.setButton(getText(R.string.cancel), 
+            mParcingProgressDialog.setButton(getText(R.string.abort), 
     				new DialogInterface.OnClickListener() {
     					@Override
     					public void onClick(DialogInterface dialog,	int which) {
@@ -219,11 +253,12 @@ public class MainTextOutputActivity extends Activity {
 		if(!mParsingResult) {
 			mMainTextView.setText(getText(R.string.parsing_error));
 			Toast.makeText(context, getText(R.string.parsing_error), duration).show();
-			LOG.E("onParcingComplete()", getText(R.string.parsing_error).toString());
+			LOG.E("onParcingComplete()", getString(R.string.parsing_error));
 			return;
 		}
 		if(mParcedData.containsKey(mPageNumber)) {
 			mMainTextView.setText(mParcedData.get(mPageNumber).text);
+			mPageNumberTextView.setText(Integer.toString(mPageNumber));
 			if(mParcedData.size() > 1)
 				mNextPageButton.setEnabled(true);
 
@@ -252,11 +287,13 @@ public class MainTextOutputActivity extends Activity {
 
     
     private boolean playAudio(String file) {
-    	if(file.isEmpty())
+    	if(file.isEmpty()) {
     		return true;
-    	
+    	}
+
     	if(mMediaPlayer.isPlaying()) {    		
     		mMediaPlayer.stop();
+    		onAudioError();
     	}
 		//mMediaPlayer.release();
 		mMediaPlayer.reset();
@@ -269,20 +306,34 @@ public class MainTextOutputActivity extends Activity {
 	    		mMediaPlayer.prepare();
 			} catch (IllegalArgumentException e) {
 				LOG.E("playAudio()", "Illegal argument. File: " + mAudioFile, e);
+				onAudioError();
 				return false;
 			} catch (IllegalStateException e) {
 				LOG.E("playAudio()", "Illegal state. File: " + mAudioFile, e);
+				onAudioError();
 				return false;
 			} catch (IOException e) {
 				LOG.E("playAudio()", "IO error. File: " + mAudioFile, e);
+				onAudioError();
 				return false;
 			}
     		mMediaPlayer.start();
+    		mAudioFileBaseNameTextView.setText(mAudioFile.getName());
+    		mPauseButton.setEnabled(true);
+    		mPauseButton.setText(getText(R.string.pause));
+    		mIsPlaying = true;
     		return true;
     	} else {
     		Toast.makeText(context, "Unable to read file: '" + mAudioFile + "'", duration).show();
+    		onAudioError();
     		return false;
     	}
+    }
+    private void onAudioError() {
+		mIsPlaying = false;
+		mPauseButton.setText(getText(R.string.play));
+		mPauseButton.setEnabled(false);
+		mAudioFileBaseNameTextView.setText("-");
     }
     
     private void selectDir() {
@@ -355,6 +406,24 @@ public class MainTextOutputActivity extends Activity {
     };
     
     /**
+     * Back button
+     */
+    OnClickListener mPauseListener = new OnClickListener() {
+        public void onClick(View v) {
+        	LOG.I("mPauseListener", "Pause.");
+        	if(mIsPlaying) {
+        		mIsPlaying = false;
+        		mPauseButton.setText(getText(R.string.play));
+        		mMediaPlayer.pause();
+        	} else {
+        		mIsPlaying = true;
+        		mPauseButton.setText(getText(R.string.pause));
+        		mMediaPlayer.start();
+        	}
+        }
+    };
+    
+    /**
      * Previous page button
      */
     OnClickListener mPreviousPageListener = new OnClickListener() {
@@ -364,8 +433,7 @@ public class MainTextOutputActivity extends Activity {
         	mNextPageButton.setEnabled(true);
     		if(mParcedData.containsKey(mPageNumber - 1)) {
     			mPageNumber--;
-    			mMainTextView.setText(mParcedData.get(mPageNumber).text);
-    			playAudio(mParcedData.get(mPageNumber).audioFile);
+    			changePage();
                 //LOG.I("mPreviousPageListener()", "Text: " + mParcedData.get(mPageNumber).text);
         		if(!mParcedData.containsKey(mPageNumber - 1)) {
         			mPreviousPageButton.setEnabled(false);
@@ -386,8 +454,7 @@ public class MainTextOutputActivity extends Activity {
         	mPreviousPageButton.setEnabled(true);
     		if(mParcedData.containsKey(mPageNumber + 1)) {
     			mPageNumber++;
-    			mMainTextView.setText(mParcedData.get(mPageNumber).text);
-    			playAudio(mParcedData.get(mPageNumber).audioFile);
+    			changePage();
                 //LOG.I("mNextPageListener()", "Text: " + mParcedData.get(mPageNumber).text);
         		if(!mParcedData.containsKey(mPageNumber + 1)) {
         			mNextPageButton.setEnabled(false);
@@ -397,4 +464,10 @@ public class MainTextOutputActivity extends Activity {
     		}
         }
     };
+    
+    private boolean changePage() {
+		mMainTextView.setText(mParcedData.get(mPageNumber).text);
+		mPageNumberTextView.setText(Integer.toString(mPageNumber));
+		return playAudio(mParcedData.get(mPageNumber).audioFile);
+    }
 }

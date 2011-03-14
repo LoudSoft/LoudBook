@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<!-- Resources -->
     <string name="app_name">LoudBook</string>
     <string name="default_search_folder_name">/sdcard/loudsoft/loudbook/</string>
     <string name="default_book_config_file_name">MyFirstBook.lb.xml</string>
@@ -37,7 +38,16 @@
     <string name="file_name">File name:</string>
     <string name="create">Create</string>
     <string name="no_data">No Data</string>
+    
+<!-- Colors -->
 	<color name="gray">#ffff0000</color>
 	<color name="orange">#ffffa500</color>
-	
+
+<!-- Preferences -->
+	<string name="user_settings">User settings</string>
+	<string name="delay">Delay</string>
+	<string name="preferences">Preferences</string>
+	<string name="title_search_directory">Search directory</string>
+	<string name="dialog_title_directory">Choose directory</string>
+	<string name="search_dir_pref_key">search_dir_pref_key</string>
 </resources>

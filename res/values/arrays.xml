@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- 
+    <string-array name="choose_directory_list">
+        <item>_sdcard_/</item>
+        <item>_sdcard_/loudbook/</item>
+        <item>Other (browse)</item>  
+    </string-array>
+    
+    <string-array name="entryvalues_choose_directory_list">
+        <item>_sdcard_/</item>
+        <item>_sdcard_/loudbook/</item>
+        <item>_BROWSE_</item>  
+    </string-array>
+-->   
+ 
+</resources>

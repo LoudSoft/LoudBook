@@ -12,6 +12,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -94,19 +97,11 @@ public class LoudBook extends Activity {
         		addItem(fileName, R.drawable.file);
         	}
         }
-/*
-        addItem("100000000100000000100000000100000000100", R.drawable.file);
-        addItem("2", R.drawable.file);
-        addItem("3", R.drawable.file);
-        addItem("4", R.drawable.file);
-        addItem("5", R.drawable.file);
-        addItem("6", R.drawable.file);
-        addItem("7", R.drawable.file);
-        addItem("8", R.drawable.file);
-        addItem("9", R.drawable.file);
-        addItem("10", R.drawable.file);
-        addItem("1111", R.drawable.file);
-*/
+        if(!mRecentUsedFileNames.isEmpty()) {
+        	mSearchFolderName.setText(mRecentUsedFileNames.get(0).dir);
+        	mBookConfigFileName.setText(mRecentUsedFileNames.get(0).file);
+        }
+
         fileList.notifyDataSetChanged();
         
         mRecentUsedFiles.setOnItemClickListener(new OnItemClickListener() {
@@ -125,6 +120,26 @@ public class LoudBook extends Activity {
     	}
     }
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+    
+	// This method is called once the menu is selected
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.preferences:
+			// Launch Preference activity
+			Intent i = new Intent(LoudBook.this, Preferences.class);
+			startActivity(i);
+			break;
+		}
+		return true;
+	}
+	
 	private void addItem(String tmpFileName, int imageId) {
 		LOG.I("addItem()","fileName = " + tmpFileName);
 		HashMap<String, Object> item = new HashMap<String, Object>();

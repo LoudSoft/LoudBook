@@ -15,5 +15,6 @@
 		<activity android:name="MainTextOutputActivity" android:label="@string/app_name">
 		</activity>
 		<activity android:name="FileDialog"></activity>
+		<activity android:label="@string/preferences" android:name="Preferences"></activity>
 	</application>
 </manifest>

@@ -12,8 +12,7 @@
 		android:text="@string/default_search_folder_name" />
 	<TextView android:id="@+id/textView2" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:text="File:"></TextView>
-	<EditText android:text="@string/default_book_config_file_name"
-		android:id="@+id/book_config_file_name" android:layout_width="match_parent"
+	<EditText android:id="@+id/book_config_file_name" android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 	<LinearLayout android:layout_width="match_parent"
 		android:layout_height="wrap_content" android:id="@+id/linearLayout1">

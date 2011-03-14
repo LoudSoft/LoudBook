@@ -24,11 +24,16 @@ TO DO:
 		d. Exit button?
 		e. Page selection dialog
 *	"Move to SD card" support
+*	Book shelf
+		a. Button on main page and menu
+		b. New dialog with files list
+*	Playing in the background
 *	Touch support (changing pages)
 *	"File not found" error sound
 * 	Editing loud book files (*.lb.xml)
 * 	SDK versions: from 2.2 Froyo
 * 	Design
+		a. Landscape/Portrait
 		a. Different dimensions
 		b. Languages: English + Russian
 		c. Images, effects, buttons... 
